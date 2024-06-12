@@ -27,14 +27,21 @@ if first_column:
 
 # Define a function to send a POST request
 def send_post_request(url, data):
+    headers = {"Content-Type": "application/json; charset=utf-8"}
+    body = {
+        'model':'llama3',
+        'prompt':data,
+        'stream':False
+    }
+
     try:
-        response = requests.post(url, json=data)
+        response = requests.post(url, headers=headers, json=body)
         return response.status_code, response.json()
     except requests.exceptions.RequestException as e:
         return None, str(e)
 
 # The URL for the POST requests
-url = "http://localhost:8000/query"
+url = "http://0.0.0.0:11434/api/chat"
 
 # List of data payloads for the POST requests
 # data_payloads = [
@@ -46,13 +53,13 @@ url = "http://localhost:8000/query"
 # ]
 
 final_data_payloads = []
-for i in range(100):
+for i in range(2):
     for i in range(1,len(first_column)-1):
         # final_data_payloads.append(data_payloads[0])
         # final_data_payloads.append(data_payloads[1])
         # final_data_payloads.append(data_payloads[2])
         # final_data_payloads.append(data_payloads[3])
-        data_payloads = {"query":first_column[i] }
+        data_payloads = first_column[i]
         final_data_payloads.append(data_payloads)
 
 print(f'hello {len(final_data_payloads)}')
