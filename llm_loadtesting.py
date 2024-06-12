@@ -46,16 +46,16 @@ url = "http://localhost:8000/query"
 # ]
 
 final_data_payloads = []
-for i in range(1,len(first_column)-1):
-    # final_data_payloads.append(data_payloads[0])
-    # final_data_payloads.append(data_payloads[1])
-    # final_data_payloads.append(data_payloads[2])
-    # final_data_payloads.append(data_payloads[3])
-    data_payloads = {"query":first_column[i] }
-    final_data_payloads.append(data_payloads)
+for i in range(100):
+    for i in range(1,len(first_column)-1):
+        # final_data_payloads.append(data_payloads[0])
+        # final_data_payloads.append(data_payloads[1])
+        # final_data_payloads.append(data_payloads[2])
+        # final_data_payloads.append(data_payloads[3])
+        data_payloads = {"query":first_column[i] }
+        final_data_payloads.append(data_payloads)
 
-
-
+print(f'hello {len(final_data_payloads)}')
 # Function to execute POST requests in parallel
 def execute_parallel_post_requests(url, final_data_payloads):
     results = []
