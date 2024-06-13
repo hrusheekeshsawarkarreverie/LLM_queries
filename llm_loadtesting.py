@@ -2,6 +2,8 @@ import concurrent.futures
 import requests
 import csv
 from io import StringIO
+import json
+import sys
 
 def read_first_column_from_github_csv(repo_url, file_path):
     first_column = []
@@ -27,21 +29,47 @@ if first_column:
 
 # Define a function to send a POST request
 def send_post_request(url, data):
-    headers = {"Content-Type": "application/json; charset=utf-8"}
+    headers = {"Content-Type": "application/json" }
     body = {
         'model':'llama3',
         'prompt':data,
-        'stream':False
+        'stream': True
     }
 
     try:
-        response = requests.post(url, headers=headers, json=body)
-        return response.status_code, response.json()
+        print(f'body: {body}')
+        # response = requests.post(url, headers=headers, data=json.dumps(body))
+
+        s = requests.Session()
+        with s.post(url, headers=headers, data=json.dumps(body),stream=True) as response:
+        # if response.status_code == 200:
+
+                # response_text = response.text
+                # data = json.loads(response_text)
+                # actual_response = data["response"]
+                # print(f'actual: {actual_response}')
+                # print(f'res type: {type(actual_response)}')
+            #    return actual_response
+           # print(f'responseee: {response.json()}')
+        #return response.status_code, response.json()
+                for line in response.iter_lines():
+                    if line:
+                #         sys.stdout.write(line.decode('utf-8')+'\n')
+                #         sys.stdout.flush()
+                        # print(response.text)
+                        print(line)
+                #         response_text = response.text
+                #         data = json.loads(response_text)
+                #         actual_response = data["response"]
+                #         print(f'actual: {actual_response}')
+                #     else:
+                #         sys.stdout.write(f'request failed with status code {response.status_code}')
+                #         sys.stdout.flush()
     except requests.exceptions.RequestException as e:
         return None, str(e)
 
 # The URL for the POST requests
-url = "http://0.0.0.0:11434/api/chat"
+url = "http://localhost:11434/api/generate"
 
 # List of data payloads for the POST requests
 # data_payloads = [
@@ -53,7 +81,7 @@ url = "http://0.0.0.0:11434/api/chat"
 # ]
 
 final_data_payloads = []
-for i in range(2):
+for i in range(1):
     for i in range(1,len(first_column)-1):
         # final_data_payloads.append(data_payloads[0])
         # final_data_payloads.append(data_payloads[1])
@@ -66,7 +94,7 @@ print(f'hello {len(final_data_payloads)}')
 # Function to execute POST requests in parallel
 def execute_parallel_post_requests(url, final_data_payloads):
     results = []
-    with concurrent.futures.ThreadPoolExecutor(max_workers=1000) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2500) as executor:
         future_to_data = {executor.submit(send_post_request, url, data): data for data in final_data_payloads}
         for future in concurrent.futures.as_completed(future_to_data):
             data = future_to_data[future]
@@ -78,11 +106,14 @@ def execute_parallel_post_requests(url, final_data_payloads):
     return results
 
 # Execute the POST requests and get the results
-results = execute_parallel_post_requests(url, final_data_payloads)
+# results = execute_parallel_post_requests(url, final_data_payloads)
+data="hi"
+res = send_post_request(url,data)
+
 
 # Print the results
-for data, status_code, response_data in results:
-    print(f"Data: {data}")
-    print(f"Status Code: {status_code}")
-    print(f"Response Data: {response_data}")
-    print()
+# for actual_response in results:
+#     #print(f"Data: {data}")
+#     #print(f"Status Code: {status_code}")
+#     #print(f"Response Data: {actual_response}")
+#     print()
